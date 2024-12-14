@@ -81,7 +81,7 @@ in
 
       options.flakeCommands.checkAll = mkCmd {
         self = cfg.checkAll;
-        name = "checkAll";
+        name = "check-all";
         purpose = "runs a full check.";
         command = ''nix flake check "$@" --all-systems --impure --no-pure-eval'';
       };
@@ -95,7 +95,7 @@ in
 
       options.flakeCommands.showAll = mkCmd {
         self = cfg.showAll;
-        name = "showAll";
+        name = "show-all";
         purpose = "shows all the outputs.";
         command = ''nix flake show "$@" --all-systems --legacy --impure --no-pure-eval'';
       };
