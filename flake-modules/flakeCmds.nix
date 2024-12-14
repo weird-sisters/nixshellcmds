@@ -8,10 +8,12 @@ let
     mkAliasDefinitions
     ;
 in
-{ ... }: {
+{ ... }:
+{
   imports = [
     flakeModules.devshellCompat
   ];
+
   options.perSystem = mkPerSystemOption (
     { config, options, ... }:
     let

@@ -59,6 +59,15 @@ in
       };
     in
     {
+      options.shellInit.watchFiles = mkOption {
+        description = ''
+          The file patterns to check in .envrc
+
+          Add these patterns to .envrc.
+        '';
+        type = types.lines;
+      };
+
       options.shellInit.envrc = mkFileCheck {
         self = cfg.envrc;
         file = ".envrc";
@@ -67,10 +76,9 @@ in
             source_url "https://raw.githubusercontent.com/nix-community/nix-direnv/2.2.1/direnvrc" "sha256-zelF0vLbEl5uaqrfIzbgNzJWGmLzCmYAkInj/LNxvKs="
           fi
 
-          watch_file flake.nix
-          watch_file flake.lock
-          watch_file flake-module.nix
-          watch_file modules/*.nix
+
+        '' + cfg.watchFiles + ''
+
 
           if ! use flake . --impure --show-trace
           then
@@ -120,8 +128,15 @@ in
       };
 
       config.devshells.${cfg.devshellAttr} = {
-        devshell.startup = mkAliasDefinitions options.shellInit.startup;
+        devshell = {
+          startup = mkAliasDefinitions options.shellInit.startup;
+        };
       };
+
+      config.shellInit.watchFiles = ''
+        watch_file flake.nix
+        watch_file flake.lock
+      '';
     }
   );
 }

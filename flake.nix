@@ -2,8 +2,8 @@
   description = "Exposes devshell commonly used menu commands";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-lib.url = "github:NixOS/nixpkgs/nixos-unstable?dir=lib";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-24.05-darwin";
+    nixpkgs-lib.url = "github:NixOS/nixpkgs/nixpkgs-24.05-darwin?dir=lib";
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs-lib";
     systems.url = "github:nix-systems/default";
@@ -49,20 +49,8 @@
         systems = import inputs.systems;
 
         perSystem = {...}: {
-          shellInit.envrc.content = ''
-          if ! has nix_direnv_version || ! nix_direnv_version 2.2.1; then
-            source_url "https://raw.githubusercontent.com/nix-community/nix-direnv/2.2.1/direnvrc" "sha256-zelF0vLbEl5uaqrfIzbgNzJWGmLzCmYAkInj/LNxvKs="
-          fi
 
-          watch_file flake.nix
-          watch_file flake.lock
-          watch_file flake-modules/*.nix
-
-          if ! use flake . --impure --show-trace
-          then
-            echo "devenv could not be built. The devenv environment was not loaded. Make the necessary changes to devenv.nix and hit enter to try again." >&2
-          fi
-          '';
+          shellInit.watchFiles = "watch_file flake-modules/*.nix";
 
           flakeCommands.push.enable = true;
         };
