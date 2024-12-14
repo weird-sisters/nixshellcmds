@@ -18,258 +18,102 @@ in
     { config, options, ... }:
     let
       cfg = config.flakeCommands;
+      
+      mkCmd = args@{
+        self,
+        name,
+        command,
+        isFlakeCommand ? true,
+        descriptiveName ? if isFlakeCommand then "flake ${self.name}" else "${self.name}",
+        purpose ? null,
+        helpMessage ? if purpose == null then "The ${descriptiveName} command!" else "The ${descriptiveName} command ${purpose}",
+        enable ? true
+      }:
+      let
+        description = {
+          enable = "Enable command";
+          name = "Name of the command";
+          command = "Command to run";
+          help = "Help message";
+        };
+      in
+      {
+        enable = mkOption {
+          description = ''
+            ${description.enable}
+          '';
+          type = types.bool;
+          default = enable;
+        };
+        name = mkOption {
+          description = ''
+            ${description.name}
+          '';
+          type = types.str;
+          default = name;
+        };
+        command = mkOption {
+          description = ''
+            ${description.command}
+          '';
+          type = types.str;
+          default = ''
+            pushd $PRJ_ROOT
+            ${command}
+          '';
+        };
+        help = mkOption {
+          description = ''
+            ${description.help}
+          '';
+          type = types.str;
+          default = "${helpMessage}";
+        };
+      };
     in
     {
-      options.flakeCommands.check = {
-        enable = mkOption {
-          description = ''
-            Enable flake check command.
-
-            This is a simplified version of check-all command.
-          '';
-          type = types.bool;
-          default = false;
-        };
-        name = mkOption {
-          description = ''
-            Check command name.
-
-            check?
-          '';
-          type = types.str;
-          default = "check";
-        };
-        command = mkOption {
-          description = ''
-            The actual command to run.
-
-            nix flake check something
-          '';
-          type = types.str;
-          default = ''
-            pushd $PRJ_ROOT
-            nix flake check "$@" --impure
-          '';
-        };
-        help = mkOption {
-          description = ''
-            Help message.
-
-            help!
-          '';
-          type = types.str;
-          default = "Check the things";
-        };
+      options.flakeCommands.check = mkCmd {
+        self = cfg.check;
+        name = "check";
+        purpose = "performs a simple check.";
+        command = ''nix flake check "$@" --impure'';
       };
 
-      options.flakeCommands.checkAll = {
-        enable = mkOption {
-          description = ''
-            Enable flake check-all command.
-
-            Check everything.
-          '';
-          type = types.bool;
-          default = true;
-        };
-        name = mkOption {
-          description = ''
-            Check all command name.
-
-            check?
-          '';
-          type = types.str;
-          default = "check-all";
-        };
-        command = mkOption {
-          description = ''
-            The actual command to run.
-
-            nix flake check --all --kill --destroy or something
-          '';
-          type = types.str;
-          default = ''
-            pushd $PRJ_ROOT
-            nix flake check "$@" --all-systems --impure --no-pure-eval
-          '';
-        };
-        help = mkOption {
-          description = ''
-            Help message.
-
-            help!
-          '';
-          type = types.str;
-          default = "Check all the things";
-        };
+      options.flakeCommands.checkAll = mkCmd {
+        self = cfg.checkAll;
+        name = "checkAll";
+        purpose = "runs a full check.";
+        command = ''nix flake check "$@" --all-systems --impure --no-pure-eval'';
       };
 
-      options.flakeCommands.show = {
-        enable = mkOption {
-          description = ''
-            Enable flake show command.
-
-            This is a simplified version of show-all command.
-          '';
-          type = types.bool;
-          default = false;
-        };
-        name = mkOption {
-          description = ''
-            Show command name.
-
-            show?
-          '';
-          type = types.str;
-          default = "show";
-        };
-        command = mkOption {
-          description = ''
-            The actual command to run.
-
-            nix flake show something
-          '';
-          type = types.str;
-          default = ''
-            pushd $PRJ_ROOT
-            nix flake show "$@" --impure
-          '';
-        };
-        help = mkOption {
-          description = ''
-            Help message.
-
-            help!
-          '';
-          type = types.str;
-          default = "Show something";
-        };
+      options.flakeCommands.show = mkCmd {
+        self = cfg.show;
+        name = "show";
+        purpose = "shows the outputs.";
+        command = ''nix flake show "$@" --impure'';
       };
 
-      options.flakeCommands.showAll = {
-        enable = mkOption {
-          description = ''
-            Enable flake show-all command.
-
-            Show everything.
-          '';
-          type = types.bool;
-          default = true;
-        };
-        name = mkOption {
-          description = ''
-            Show all command name.
-
-            show-all?
-          '';
-          type = types.str;
-          default = "show-all";
-        };
-        command = mkOption {
-          description = ''
-            The actual command to run.
-
-            nix flake show --all --todo --alles
-          '';
-          type = types.str;
-          default = ''
-            pushd $PRJ_ROOT
-            nix flake show "$@" --all-systems --legacy --impure --no-pure-eval
-          '';
-        };
-        help = mkOption {
-          description = ''
-            Help message.
-
-            help!
-          '';
-          type = types.str;
-          default = "Show everything!";
-        };
+      options.flakeCommands.showAll = mkCmd {
+        self = cfg.showAll;
+        name = "showAll";
+        purpose = "shows all the outputs.";
+        command = ''nix flake show "$@" --all-systems --legacy --impure --no-pure-eval'';
       };
 
-      options.flakeCommands.update = {
-        enable = mkOption {
-          description = ''
-            Enable update command.
-
-            Update it.
-          '';
-          type = types.bool;
-          default = true;
-        };
-        name = mkOption {
-          description = ''
-            Update command name.
-
-            update?
-          '';
-          type = types.str;
-          default = "update";
-        };
-        command = mkOption {
-          description = ''
-            The actual command to run.
-
-            nix flake update ...
-          '';
-          type = types.str;
-          default = ''
-            pushd $PRJ_ROOT
-            nix flake update "$@"
-          '';
-        };
-        help = mkOption {
-          description = ''
-            Help message.
-
-            help!
-          '';
-          type = types.str;
-          default = "Updata las flakes, caro senor!";
-        };
+      options.flakeCommands.update = mkCmd {
+        self = cfg.update;
+        name = "update";
+        purpose = "update inputs.";
+        command = ''nix flake update "$@"'';
       };
 
-      options.flakeCommands.push = {
-        enable = mkOption {
-          description = ''
-            Enable cachix push.
-
-            Push it.
-          '';
-          type = types.bool;
-          default = false;
-        };
-        name = mkOption {
-          description = ''
-            Push cache command name.
-
-            push?
-          '';
-          type = types.str;
-          default = "push";
-        };
-        command = mkOption {
-          description = ''
-            The actual command to run.
-
-            nix flake archive etc.
-          '';
-          type = types.str;
-          default = ''
-            pushd $PRJ_ROOT
-            nix flake archive "$@" --json | jq -r '.path,(.inputs|to_entries[].value.path)' | cachix push tarc
-          '';
-        };
-        help = mkOption {
-          description = ''
-            Help message.
-
-            help!
-          '';
-          type = types.str;
-          default = "Push to cachix!";
-        };
+      options.flakeCommands.push = mkCmd {
+        self = cfg.push;
+        enable = false;
+        name = "push";
+        purpose = "push to cachix.";
+        isFlakeCommand = false;
+        command = ''nix flake archive "$@" --json | jq -r '.path,(.inputs|to_entries[].value.path)' | cachix push tarc'';
       };
 
       options.flakeCommands.commands = mkOption {

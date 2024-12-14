@@ -16,6 +16,7 @@ in
     { config, options, ... }:
     let
       cfg = config.shellInit;
+      
       mkFileCheck = { self, file, content, enable ? true }: {
         enable = mkOption {
           description = ''
