@@ -1,7 +1,6 @@
-{ flake-parts-lib, nixpkgs-lib, flakeModules, ... }:
+{ lib, mkPerSystemOption, ... }:
 let
-  inherit (flake-parts-lib) mkPerSystemOption;
-  inherit (nixpkgs-lib.lib)
+  inherit (lib)
     mkOption
     types
     optional
@@ -10,10 +9,6 @@ let
 in
 { ... }:
 {
-  imports = [
-    flakeModules.devshellCompat
-  ];
-
   options.perSystem = mkPerSystemOption (
     { config, options, ... }:
     let
