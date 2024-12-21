@@ -50,6 +50,8 @@
           shellInit.watchFiles = "watch_file flake-modules/*.nix";
 
           flakeCommands.push.enable = true;
+
+          commands.list = "ls";
         };
         
         flake = {

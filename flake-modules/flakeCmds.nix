@@ -4,6 +4,7 @@ let
     mkOption
     types
     optional
+    mapAttrsToList
     mkAliasDefinitions
     ;
 in
@@ -127,7 +128,16 @@ in
         default = "default";
       };
 
-      config.flakeCommands.commands = [ ]
+      options.commands = mkOption {
+        type = types.attrs;
+        default = {};
+      };
+
+      config.flakeCommands.commands = (mapAttrsToList (name: command: {
+        name = name;
+        command = command;
+        help = "Run ${command}.";
+      }) config.commands )
         ++ optional cfg.check.enable {
           name = cfg.check.name;
           command = cfg.check.command;
