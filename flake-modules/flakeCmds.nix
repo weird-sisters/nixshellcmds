@@ -7,6 +7,8 @@ let
     mapAttrsToList
     mkAliasDefinitions
     ;
+  inherit (lib.attrsets)
+    mapAttrs;
 in
 { ... }:
 {
@@ -68,6 +70,13 @@ in
       };
     in
     {
+      options.flakeCommands.defaults = mkOption {
+        type = types.attrsOf (types.separatedString " --option ");
+        default = {
+          nix-flake-update = "accept-flake-config true";
+        };
+        apply = dfs: (mapAttrs (_: value: if value == "" then value else "--option " + value ) dfs);
+      };
       options.flakeCommands.check = mkCmd {
         self = cfg.check;
         name = "check";
@@ -100,7 +109,7 @@ in
         self = cfg.update;
         name = "update";
         purpose = "update inputs.";
-        command = ''nix flake update "$@"'';
+        command = ''nix flake update ${cfg.defaults.nix-flake-update} "$@"'';
       };
 
       options.flakeCommands.push = mkCmd {
